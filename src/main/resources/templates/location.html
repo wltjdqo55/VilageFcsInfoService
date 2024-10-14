@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<button id="find-me">내 위치 보기</button><br />
+<p id="status"></p>
+<a id="map-link" target="_blank"></a>
+
+<div id="app">
+    <button type="button" @click="weatherAPISubmit()">API호출</button>
+</div>
+<script>
+    function geoFindMe() {
+      const status = document.querySelector("#status");
+      const mapLink = document.querySelector("#map-link");
+
+      mapLink.href = "";
+      mapLink.textContent = "";
+
+      function success(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        status.textContent = "";
+        mapLink.href = `https://www.openstreetmap.org/#map=18/${latitude}/${longitude}`;
+        mapLink.textContent = `위도: ${latitude} °, 경도: ${longitude} °`;
+
+        window.latitude = latitude;
+        window.longitude = longitude;
+      }
+
+      function error() {
+        status.textContent = "현재 위치를 가져올 수 없음";
+      }
+
+      if (!navigator.geolocation) {
+        status.textContent = "브라우저가 위치 정보를 지원하지 않음";
+      } else {
+        status.textContent = "위치 파악 중…";
+        navigator.geolocation.getCurrentPosition(success, error);
+      }
+    }
+
+    document.querySelector("#find-me").addEventListener("click", geoFindMe);
+
+</script>
+<script src="/plugins/vueJs/vue.js"></script>
+<script type="text/javascript" src="/plugins/axios/axios.min.js"></script>
+<script>
+    new Vue({
+      el : "#app",
+      data : {
+        x : "",
+        y : ""
+      },
+      methods : {
+        weatherAPISubmit : function () {
+            let vm = this;
+
+            vm.x = window.latitude;
+            vm.y = window.longitude;
+
+            axios.get('/location/getList', {
+                params : {
+                    latitude : vm.x,
+                    longitude : vm.y
+                }
+            })
+            .then(res => {
+                console.log("!!!!!!!!!!!!");
+                console.log(res.data);
+                console.log("!!!!!!!!!!!!!")
+            })
+            .catch(error => {
+                console.error(error);
+            })
+        }
+      },
+     filters: {},
+     computed: {},
+     watch: {},
+     created() {},
+     mounted() {
+     }
+   })
+</script>
+</body>
+</html>
