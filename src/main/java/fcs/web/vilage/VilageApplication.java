@@ -11,15 +11,12 @@ import java.io.IOException;
 public class VilageApplication {
 
 	public static void main(String[] args) {
-
-		WeatherData weatherData = new WeatherData();
-
-		try {
-			weatherData.lookUpWeather();
-		} catch(IOException | JSONException e){
-			e.printStackTrace();
-		}
-
-
+		SpringApplication.run(VilageApplication.class, args);
+//		WeatherData weatherData = new WeatherData();
+//		try {
+//			weatherData.lookUpWeather();
+//		} catch(IOException | JSONException e){
+//			e.printStackTrace();
+//		}
 	}
 }
