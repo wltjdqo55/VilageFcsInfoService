@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+        [v-cloak] {display:none;};
+    </style>
 </head>
 <body>
 
@@ -12,7 +15,7 @@
 
 <div id="app">
     <button type="button" @click="weatherAPISubmit()">API호출</button><br>
-    <table border="1" v-if="isLocation">
+    <table border="1" v-if="isLocation" v-cloak>
         <tr>
             <td>주소</td>
             <td>발표일자</td>

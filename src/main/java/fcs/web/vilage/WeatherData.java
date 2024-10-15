@@ -31,13 +31,13 @@ public class WeatherData {
     String address = toAddress(x, y);    // 좌표를 이용하여 주소 구하기
 
     System.out.println(address);
-
+//    소수점 제거 x, y
     nx = x.substring(0, x.indexOf("."));    // 현재 위도
     ny = y.substring(0, y.indexOf("."));    // 현재 경도
     System.out.println(nx + " " + ny);
 //		참고문서에 있는 url주소
     String apiUrl = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
-//    홈페이지에서 받은 키
+//    홈페이지에서 받은 키 ( 공공 데이터 포털 )
     String serviceKey = "BSfQt0ifiEuIu2Ms%2BqzwkXCn6eMPnhckqcU9fvN7Z8shVRJTH2Cbm1DHseqaYXD4d0En7PZkbVBMCF%2BWQay6Ug%3D%3D";
 
     StringBuilder urlBuilder = new StringBuilder(apiUrl);
@@ -109,9 +109,11 @@ public class WeatherData {
 
     JsonReader jsonReader = new JsonReader();
 
+    // 홈페이지에서 받은 키 (국토교통부 - 디지털트윈국토)
     String apiKey = "2BDC8B43-9DE6-3157-810B-3E888EBC89A2";
-    String latitude = x;
     // 위도
+    String latitude = x;
+    // 경도
     String longitude = y;
     // api 테스트
     // # 파라미터 종류 확인 : http://www.vworld.kr/dev/v4dv_geocoderguide2_s002.do
@@ -136,11 +138,11 @@ public class WeatherData {
 
     for (int counter = 0; counter < reverseGeocodeResultArr.size(); counter++) {
       HashMap<String, Object> tmp = (HashMap<String, Object>) reverseGeocodeResultArr.get(counter);
-
+      System.out.println("map = > " + tmp);
       String level0 = (String) ((HashMap<String, Object>) tmp.get("structure")).get("level0");
       String level1 = (String) ((HashMap<String, Object>) tmp.get("structure")).get("level1");
       String level2 = (String) ((HashMap<String, Object>) tmp.get("structure")).get("level2");
-      //주소 도, 시, 구, 동
+      //주소 : 도, 시, 구, 동
       address  = (String) tmp.get("text");
 
       if (tmp.get("type").equals("parcel")) {
