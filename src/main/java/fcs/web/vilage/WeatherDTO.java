@@ -23,13 +23,16 @@ public class WeatherDTO {
 
   private String longitude;
 
-  public WeatherDTO(String baseDate, String baseTime, String category, String obsrValue, int nx, int ny){
+  private String address;
+
+  public WeatherDTO(String baseDate, String baseTime, String category, String obsrValue, int nx, int ny, String address){
     this.baseDate = baseDate;
     this.baseTime = baseTime;
     this.category = category;
     this.obsrValue = obsrValue;
     this.nx = nx;
     this.ny = ny;
+    this.address = address;
   }
 
 }

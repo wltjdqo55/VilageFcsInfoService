@@ -11,7 +11,27 @@
 <a id="map-link" target="_blank"></a>
 
 <div id="app">
-    <button type="button" @click="weatherAPISubmit()">API호출</button>
+    <button type="button" @click="weatherAPISubmit()">API호출</button><br>
+    <table border="1" v-if="isLocation">
+        <tr>
+            <td>주소</td>
+            <td>발표일자</td>
+            <td>발표시각</td>
+            <td>자료구분코드</td>
+            <td>예보지점 X좌표</td>
+            <td>예보지점 Y좌표</td>
+            <td>실황값</td>
+        </tr>
+        <tr v-for="(item, index) in locationData">
+            <td>{{item.address}}</td>
+            <td>{{item.baseDate}}</td>
+            <td>{{item.baseTime}}</td>
+            <td>{{item.category}}</td>
+            <td>{{item.nx}}</td>
+            <td>{{item.ny}}</td>
+            <td>{{item.obsrValue}}</td>
+        </tr>
+    </table>
 </div>
 <script>
     function geoFindMe() {
@@ -31,6 +51,7 @@
 
         window.latitude = latitude;
         window.longitude = longitude;
+        window.__isSubmit();
       }
 
       function error() {
@@ -55,11 +76,19 @@
       el : "#app",
       data : {
         x : "",
-        y : ""
+        y : "",
+        locationData : {},
+        isLocation : false,
+        isSubmitValue : false
       },
       methods : {
         weatherAPISubmit : function () {
             let vm = this;
+
+            if(!vm.isSubmitValue) {
+                alert("위치정보를 먼저 확인해주세요.");
+                return false;
+            }
 
             vm.x = window.latitude;
             vm.y = window.longitude;
@@ -72,10 +101,15 @@
             })
             .then(res => {
                 console.log(res.data);
+                vm.locationData = res.data;
+                vm.isLocation = true;
             })
             .catch(error => {
                 console.error(error);
             })
+        },
+        isSubmit : function () {
+            this.isSubmitValue = true;
         }
       },
      filters: {},
@@ -83,6 +117,7 @@
      watch: {},
      created() {},
      mounted() {
+        window.__isSubmit = this.isSubmit;
      }
    })
 </script>
