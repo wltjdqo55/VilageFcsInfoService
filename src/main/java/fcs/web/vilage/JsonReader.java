@@ -21,16 +21,6 @@ public class JsonReader {
     URLConnection urlConn = null;
     InputStreamReader in = null;
 
-
-//    HostnameVerifier allHostsValid = new HostnameVerifier() {
-//      @Override
-//      public boolean verify(String s, SSLSession sslSession) {
-//        return true;
-//      }
-//    };
-//
-//    HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-
     try {
       URL url = new URL(myURL);
       urlConn = url.openConnection();
