@@ -1,6 +1,5 @@
 package fcs.web.vilage;
 
-import org.apache.tomcat.util.json.JSONParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,11 +7,9 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -138,7 +135,7 @@ public class WeatherData {
 
     for (int counter = 0; counter < reverseGeocodeResultArr.size(); counter++) {
       HashMap<String, Object> tmp = (HashMap<String, Object>) reverseGeocodeResultArr.get(counter);
-      System.out.println("map = > " + tmp);
+      System.out.println("tmp = > " + tmp);
       String level0 = (String) ((HashMap<String, Object>) tmp.get("structure")).get("level0");
       String level1 = (String) ((HashMap<String, Object>) tmp.get("structure")).get("level1");
       String level2 = (String) ((HashMap<String, Object>) tmp.get("structure")).get("level2");
