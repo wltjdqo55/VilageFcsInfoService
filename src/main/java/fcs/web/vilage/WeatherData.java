@@ -10,17 +10,22 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.format.DateTimeFormatter;
 
 public class WeatherData {
 
   private String nx = "";	//위도
   private String ny = "";	//경도
-  private String baseDate = "20241015";	//조회하고싶은 날짜
-  private String baseTime = "0500";	//조회하고싶은 시간
+// API는 최근 1일간의 자료만 제공하기 때문에 현재시간의 12시간 전으로 설정
+  private String baseDate = calculateBaseDate();	// 12시간 전 날짜
+  private String baseTime = calculateBaseTime();	// 12시간 전 시간
   private String type = "json";	//조회하고 싶은 type(json, xml 중 고름)
 
   public List<WeatherDTO> lookUpWeather(String x, String y) throws IOException, JSONException {
@@ -78,6 +83,7 @@ public class WeatherData {
     List<WeatherDTO> weatherDataList = new ArrayList<>();
 
     JSONObject jsonObject = new JSONObject(result);
+    System.out.println(jsonObject);
     JSONObject response = jsonObject.getJSONObject("response");
     JSONObject body = response.getJSONObject("body");
     JSONArray items = body.getJSONObject("items").getJSONArray("item");
@@ -155,5 +161,13 @@ public class WeatherData {
     System.out.println("road_address = > " + road_address);
 
     return address;
+  }
+
+  public static String calculateBaseDate() {
+    return LocalDateTime.now().minusHours(12).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+  }
+
+  public static String calculateBaseTime() {
+    return LocalDateTime.now().minusHours(12).format(DateTimeFormatter.ofPattern("HHmm"));
   }
 }
