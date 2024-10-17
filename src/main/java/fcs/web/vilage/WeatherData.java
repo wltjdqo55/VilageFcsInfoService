@@ -10,9 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,15 +26,15 @@ public class WeatherData {
   private String baseTime = calculateBaseTime();	// 12시간 전 시간
   private String type = "json";	//조회하고 싶은 type(json, xml 중 고름)
 
-  public List<WeatherDTO> lookUpWeather(String x, String y) throws IOException, JSONException {
+  public String lookUpWeather(int x, int y, String address) throws IOException, JSONException {
 
-    String address = toAddress(x, y);    // 좌표를 이용하여 주소 구하기
+//  String address = toAddress(x, y);    // 좌표를 이용하여 주소 구하기
 
-    System.out.println(address);
+//    System.out.println(address);
 //    소수점 제거 x, y
-    nx = x.substring(0, x.indexOf("."));    // 현재 위도
-    ny = y.substring(0, y.indexOf("."));    // 현재 경도
-    System.out.println(nx + " " + ny);
+//    nx = x.substring(0, x.indexOf("."));    // 현재 위도
+//    ny = y.substring(0, y.indexOf("."));    // 현재 경도
+//    System.out.println(nx + " " + ny);
 //		참고문서에 있는 url주소
     String apiUrl = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
 //    홈페이지에서 받은 키 ( 공공 데이터 포털 )
@@ -44,8 +42,8 @@ public class WeatherData {
 
     StringBuilder urlBuilder = new StringBuilder(apiUrl);
     urlBuilder.append("?" + URLEncoder.encode("ServiceKey","UTF-8") + "="+serviceKey);
-    urlBuilder.append("&" + URLEncoder.encode("nx","UTF-8") + "=" + URLEncoder.encode(nx, "UTF-8")); //경도
-    urlBuilder.append("&" + URLEncoder.encode("ny","UTF-8") + "=" + URLEncoder.encode(ny, "UTF-8")); //위도
+    urlBuilder.append("&" + URLEncoder.encode("nx","UTF-8") + "=" + URLEncoder.encode(String.valueOf(x), "UTF-8")); //경도
+    urlBuilder.append("&" + URLEncoder.encode("ny","UTF-8") + "=" + URLEncoder.encode(String.valueOf(y), "UTF-8")); //위도
     urlBuilder.append("&" + URLEncoder.encode("base_date","UTF-8") + "=" + URLEncoder.encode(baseDate, "UTF-8")); /* 조회하고싶은 날짜*/
     urlBuilder.append("&" + URLEncoder.encode("base_time","UTF-8") + "=" + URLEncoder.encode(baseTime, "UTF-8")); /* 조회하고싶은 시간 AM 02시부터 3시간 단위 */
     urlBuilder.append("&" + URLEncoder.encode("dataType","UTF-8") + "=" + URLEncoder.encode(type, "UTF-8"));	/* 타입 */
@@ -100,12 +98,9 @@ public class WeatherData {
 
       WeatherDTO weatherDTO = new WeatherDTO(baseDate, baseTime, category, obsrValue, nx, ny, address);
       weatherDataList.add(weatherDTO);
-
-      System.out.println("날짜 : " + baseDate + ", 시간 : " + baseTime + ", 카테고리 : " + category + ", 경도 : " + nx + ", 위도 : " + ny + ", 관측값 : " + obsrValue);
     }
 
-    return weatherDataList;
-
+    return weatherInfoText(weatherDataList);
   }
 
   public String toAddress(String x, String y) throws IOException, JSONException {
@@ -169,5 +164,48 @@ public class WeatherData {
 
   public static String calculateBaseTime() {
     return LocalDateTime.now().minusHours(12).format(DateTimeFormatter.ofPattern("HHmm"));
+  }
+
+  public static String weatherInfoText(List<WeatherDTO> list) {
+    StringBuilder word = new StringBuilder(list.get(0).getAddress() + " 마을 현재 기상 정보 - \n");
+
+    for (WeatherDTO weather : list) {
+      String category = weather.getCategory();
+      String obsrValue = weather.getObsrValue();
+
+      if (category.equals("PTY")) {
+        word.append("강수형태: ").append(obsrValue).append(" ");
+      } else if (category.equals("REH")) {
+        word.append("습도: ").append(obsrValue).append("% ");
+      } else if (category.equals("PCP")) {
+        word.append("1시간 강수량: ").append(obsrValue).append(" mm ");
+      } else if (category.equals("TMP")) {
+        word.append("현재 기온: ").append(obsrValue).append("℃ ");
+      } else if (category.equals("TMN")) {
+        word.append("일 최저기온: ").append(obsrValue).append("℃ ");
+      } else if (category.equals("TMX")) {
+        word.append("일 최고기온: ").append(obsrValue).append("℃ ");
+      } else if (category.equals("UUU")) {
+        word.append("풍속(동서성분): ").append(obsrValue).append(" m/s ");
+      } else if (category.equals("VVV")) {
+        word.append("풍속(남북성분): ").append(obsrValue).append(" m/s ");
+      } else if (category.equals("VEC")) {
+        word.append("풍향: ").append(obsrValue).append("° ");
+      } else if (category.equals("WSD")) {
+        word.append("풍속: ").append(obsrValue).append(" m/s ");
+      } else if (category.equals("SNO")) {
+        word.append("1시간 신적설: ").append(obsrValue).append(" cm ");
+      } else if (category.equals("SKY")) {
+        word.append("하늘상태: ").append(obsrValue).append(" ");
+      } else if (category.equals("RN1")) {
+        word.append("1시간 강수량: ").append(obsrValue).append(" mm ");
+      } else if (category.equals("WAV")) {
+        word.append("파고: ").append(obsrValue).append(" m ");
+      } else if (category.equals("LGT")) {
+        word.append("낙뢰: ").append(obsrValue).append(" kA ");
+      }
+    }
+
+    return word.toString();
   }
 }

@@ -6,72 +6,25 @@
     <style>
         [v-cloak] {display:none;};
     </style>
+    <link rel="stylesheet" href="/css/location.css">
 </head>
 <body>
 
-<button id="find-me">내 위치 보기</button><br />
-<p id="status"></p>
-<a id="map-link" target="_blank"></a>
-
-<div id="app">
-    <button type="button" @click="weatherAPISubmit()">API호출</button><br>
-    <table border="1" v-if="isLocation" v-cloak>
-        <tr>
-            <td>주소</td>
-            <td>발표일자</td>
-            <td>발표시각</td>
-            <td>자료구분코드</td>
-            <td>예보지점 X좌표</td>
-            <td>예보지점 Y좌표</td>
-            <td>실황값</td>
-        </tr>
-        <tr v-for="(item, index) in locationData">
-            <td>{{item.address}}</td>
-            <td>{{item.baseDate}}</td>
-            <td>{{item.baseTime}}</td>
-            <td>{{item.category}}</td>
-            <td>{{item.nx}}</td>
-            <td>{{item.ny}}</td>
-            <td>{{item.obsrValue}}</td>
-        </tr>
-    </table>
+<div id="app" v-cloak>
+    <h2>날씨 정보</h2>
+    <label>
+        <select v-model="search.selectedParent" @change="getChildList()">
+            <option value="선택">선택</option>
+            <option v-for="(parent, index) in regionParent" :key="index" :value="parent">{{parent}}</option>
+        </select>
+        <select v-model="search.selectedChild" v-if="search.selectedParent!='선택'">
+            <option value="선택">선택</option>
+            <option v-for="(child, index) in regionChild" :key="index" :value="child">{{child}}</option>
+        </select>
+        <button type="button" @click="weatherAPISubmit()">확인</button>
+    </label>
+    <span v-html="weatherInfo"></span>
 </div>
-<script>
-    function geoFindMe() {
-      const status = document.querySelector("#status");
-      const mapLink = document.querySelector("#map-link");
-
-      mapLink.href = "";
-      mapLink.textContent = "";
-
-      function success(position) {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-
-        status.textContent = "";
-        mapLink.href = `https://www.openstreetmap.org/#map=18/${latitude}/${longitude}`;
-        mapLink.textContent = `위도: ${latitude} °, 경도: ${longitude} °`;
-
-        window.latitude = latitude;
-        window.longitude = longitude;
-        window.__isSubmit();
-      }
-
-      function error() {
-        status.textContent = "현재 위치를 가져올 수 없음";
-      }
-
-      if (!navigator.geolocation) {
-        status.textContent = "브라우저가 위치 정보를 지원하지 않음";
-      } else {
-        status.textContent = "위치 파악 중…";
-        navigator.geolocation.getCurrentPosition(success, error);
-      }
-    }
-
-    document.querySelector("#find-me").addEventListener("click", geoFindMe);
-
-</script>
 <script src="/plugins/vueJs/vue.js"></script>
 <script type="text/javascript" src="/plugins/axios/axios.min.js"></script>
 <script>
@@ -80,47 +33,74 @@
       data : {
         x : "",
         y : "",
-        locationData : {},
-        isLocation : false,
-        isSubmitValue : false
+        weatherInfo : "",
+        search : {
+            selectedParent : "선택",
+            selectedChild : "선택"
+        },
+        regionParent : {},
+        regionChild : {}
       },
       methods : {
-        weatherAPISubmit : function () {
+        loadData : function () {
             let vm = this;
-
-            if(!vm.isSubmitValue) {
-                alert("위치정보를 먼저 확인해주세요.");
-                return false;
-            }
-
-            vm.x = window.latitude;
-            vm.y = window.longitude;
-
-            axios.get('/location/getList', {
-                params : {
-                    latitude : vm.x,
-                    longitude : vm.y
-                }
-            })
+            axios.get('/location/getRegionParentList')
             .then(res => {
                 console.log(res.data);
-                vm.locationData = res.data;
-                vm.isLocation = true;
+                vm.regionParent = res.data;
             })
             .catch(error => {
                 console.error(error);
             })
         },
-        isSubmit : function () {
-            this.isSubmitValue = true;
-        }
+        getChildList : function () {
+            let vm = this;
+            vm.search.selectedChild = "선택";
+            axios.get('/location/getRegionChildList', {
+                params : {
+                    regionParent : vm.search.selectedParent
+                }
+            })
+            .then(res => {
+                console.log(res.data);
+                vm.regionChild = res.data;
+            })
+            .catch(error => {
+                console.error(error);
+            })
+        },
+        weatherAPISubmit : function () {
+            let vm = this;
+
+            if(vm.search.selectedParent == "선택" && vm.search.selectedChild == "선택") {
+                alert("지역을 선택하세요.");
+                return false;
+            } else if(vm.search.selectedParent != "선택" && vm.search.selectedChild == "선택"){
+                vm.search.selectedChild == "";
+            }
+
+
+            axios.get('/location/getWeatherInfo', {
+                params : {
+                    regionParent : vm.search.selectedParent,
+                    regionChild : vm.search.selectedChild
+                }
+            })
+            .then(res => {
+                console.log(res.data);
+                vm.weatherInfo = res.data;
+            })
+            .catch(error => {
+                console.error(error);
+            })
+        },
       },
      filters: {},
      computed: {},
      watch: {},
      created() {},
      mounted() {
-        window.__isSubmit = this.isSubmit;
+        this.loadData();
      }
    })
 </script>
