@@ -21,12 +21,12 @@ public class WeatherData {
 
   private String nx = "";	//위도
   private String ny = "";	//경도
-// API는 최근 1일간의 자료만 제공하기 때문에 현재시간의 12시간 전으로 설정
+// API는 최근 1일간의 자료만 제공하기 때문에 현재시간의 1시간 전으로 설정
   private String baseDate = calculateBaseDate();	// 12시간 전 날짜
   private String baseTime = calculateBaseTime();	// 12시간 전 시간
   private String type = "json";	//조회하고 싶은 type(json, xml 중 고름)
 
-  public String lookUpWeather(int x, int y, String address) throws IOException, JSONException {
+  public String[] lookUpWeather(int x, int y, String address) throws IOException, JSONException {
 
 //  String address = toAddress(x, y);    // 좌표를 이용하여 주소 구하기
 
@@ -99,8 +99,9 @@ public class WeatherData {
       WeatherDTO weatherDTO = new WeatherDTO(baseDate, baseTime, category, obsrValue, nx, ny, address);
       weatherDataList.add(weatherDTO);
     }
-
-    return weatherInfoText(weatherDataList);
+    String time = currentTime(weatherDataList);
+    String weatherText = weatherInfoText(weatherDataList);
+    return new String[]{time, weatherText};
   }
 
   public String toAddress(String x, String y) throws IOException, JSONException {
@@ -159,53 +160,75 @@ public class WeatherData {
   }
 
   public static String calculateBaseDate() {
-    return LocalDateTime.now().minusHours(12).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    return LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
   }
 
   public static String calculateBaseTime() {
-    return LocalDateTime.now().minusHours(12).format(DateTimeFormatter.ofPattern("HHmm"));
+    return LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ofPattern("HHmm"));
   }
 
   public static String weatherInfoText(List<WeatherDTO> list) {
-    StringBuilder word = new StringBuilder(list.get(0).getAddress() + " 마을 현재 기상 정보 - \n");
+    StringBuilder word = new StringBuilder(list.get(0).getAddress() + " 기상 정보 - \n");
 
     for (WeatherDTO weather : list) {
       String category = weather.getCategory();
       String obsrValue = weather.getObsrValue();
 
-      if (category.equals("PTY")) {
-        word.append("강수형태: ").append(obsrValue).append(" ");
+      if (category.equals("PTY")) {       //강수형태
+        if(obsrValue.equals("0")){
+          word.append("강수형태: ").append("없음").append(" | ");
+        } else if(obsrValue.equals("1")){
+          word.append("강수형태: ").append("비").append(" | ");
+        } else if(obsrValue.equals("2")){
+          word.append("강수형태: ").append("비/눈").append(" | ");
+        } else if(obsrValue.equals("3")){
+          word.append("강수형태: ").append("눈").append(" | ");
+        } else if(obsrValue.equals("4")){
+          word.append("강수형태: ").append("소나기").append(" | ");
+        } else if(obsrValue.equals("5")){
+          word.append("강수형태: ").append("빗방울").append(" | ");
+        } else if(obsrValue.equals("6")){
+          word.append("강수형태: ").append("빗방울눈날림").append(" | ");
+        } else if(obsrValue.equals("7")){
+          word.append("강수형태: ").append("눈날림").append(" | ");
+        }
       } else if (category.equals("REH")) {
-        word.append("습도: ").append(obsrValue).append("% ");
-      } else if (category.equals("PCP")) {
-        word.append("1시간 강수량: ").append(obsrValue).append(" mm ");
-      } else if (category.equals("TMP")) {
-        word.append("현재 기온: ").append(obsrValue).append("℃ ");
-      } else if (category.equals("TMN")) {
-        word.append("일 최저기온: ").append(obsrValue).append("℃ ");
-      } else if (category.equals("TMX")) {
-        word.append("일 최고기온: ").append(obsrValue).append("℃ ");
+        word.append("습도: ").append(obsrValue).append("% | ");
+      } else if (category.equals("RN1")) {
+        double d = Double.parseDouble(obsrValue);
+        if(d == 0) {
+          word.append("1시간 강수량: ").append(" 강수없음 | ");
+        } else if(d < 1.0f) {
+          word.append("1시간 강수량: ").append(" 1.0mm 미만 | ");
+        } else if(d >= 1.0f && d < 30.0f) {
+          word.append("1시간 강수량: ").append(" 1.0~29.0mm | ");
+        } else if(d >= 30.0f && d < 50.0f) {
+          word.append("1시간 강수량: ").append(" 30.0~50.0mm | ");
+        } else {
+          word.append("1시간 강수량: ").append(" 50.0mm 이상 | ");
+        }
+      } else if (category.equals("T1H")) {
+        word.append("기온: ").append(obsrValue).append("℃ | ");
       } else if (category.equals("UUU")) {
-        word.append("풍속(동서성분): ").append(obsrValue).append(" m/s ");
-      } else if (category.equals("VVV")) {
-        word.append("풍속(남북성분): ").append(obsrValue).append(" m/s ");
+        word.append("풍속(동서성분): ").append(obsrValue).append(" m/s | ");
       } else if (category.equals("VEC")) {
-        word.append("풍향: ").append(obsrValue).append("° ");
+        word.append("풍향: ").append(obsrValue).append("° | ");
+      } else if (category.equals("VVV")) {
+        word.append("풍속(남북성분): ").append(obsrValue).append(" m/s | ");
       } else if (category.equals("WSD")) {
         word.append("풍속: ").append(obsrValue).append(" m/s ");
-      } else if (category.equals("SNO")) {
-        word.append("1시간 신적설: ").append(obsrValue).append(" cm ");
-      } else if (category.equals("SKY")) {
-        word.append("하늘상태: ").append(obsrValue).append(" ");
-      } else if (category.equals("RN1")) {
-        word.append("1시간 강수량: ").append(obsrValue).append(" mm ");
-      } else if (category.equals("WAV")) {
-        word.append("파고: ").append(obsrValue).append(" m ");
-      } else if (category.equals("LGT")) {
-        word.append("낙뢰: ").append(obsrValue).append(" kA ");
       }
     }
-
     return word.toString();
+  }
+
+  public String currentTime(List<WeatherDTO> list) {  // 조회시간 문자열로 생성
+    String date = list.get(0).getBaseDate();
+    String time = list.get(0).getBaseTime();
+    String s = "조회시간 : ";
+    s += date.substring(0, 4) + "년 " + date.substring(4,6) + "월 " + date.substring(6) + "일 ";
+    s += time.substring(0, 2) + "시 " + time.substring(2) + "분";
+
+    return s;
   }
 }
