@@ -24,8 +24,7 @@
 3. 단기예보 조회서비스 오픈API 활용가이드_격자 위경도 EXCEL 파일의 데이터를 필요한 데이터만 추출해서 CSV파일로 변환후 POSTGRES SQL에 등록
 4. 코드 구현
 ## 실행 화면
-![화면](https://github.com/user-attachments/assets/06d9fd19-87d6-4490-a994-f68e78b75e82)
-![화면](https://github.com/user-attachments/assets/a8bd69a6-d41c-4401-a5b8-104732158f40)
-![화면](https://github.com/user-attachments/assets/9a1f0351-4282-45ea-a7aa-78bc663f8802)
-![화면](https://github.com/user-attachments/assets/27680b06-1c9f-4dcb-9323-f5a29ac192cf)
-![화면](https://github.com/user-attachments/assets/7135a468-7eec-4eff-9e57-6998bf05a919)
+![도 선택](https://github.com/user-attachments/assets/06d9fd19-87d6-4490-a994-f68e78b75e82)
+![시 선택](https://github.com/user-attachments/assets/a8bd69a6-d41c-4401-a5b8-104732158f40)
+![경기도 광주시](https://github.com/user-attachments/assets/27680b06-1c9f-4dcb-9323-f5a29ac192cf)
+![서울특별시 강남구](https://github.com/user-attachments/assets/7135a468-7eec-4eff-9e57-6998bf05a919)
