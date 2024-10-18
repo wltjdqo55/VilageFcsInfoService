@@ -6,15 +6,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface WeatherRepository extends JpaRepository<Region, Long> {
 
-  @Query(value = "SELECT DISTINCT region_parent FROM region", nativeQuery = true)
+  @Query(value = "SELECT DISTINCT region_parent FROM region ORDER BY region_parent ASC", nativeQuery = true)
   List<String> findRegionParents();
 
-  @Query(value = "SELECT DISTINCT region_child FROM region WHERE region_parent = :regionParent AND region_child IS NOT NULL AND region_child != ''", nativeQuery = true)
+  @Query(value = "SELECT DISTINCT region_child FROM region WHERE region_parent = :regionParent AND region_child IS NOT NULL AND region_child != '' ORDER BY region_child ASC", nativeQuery = true)
   List<String> findRegionChild(@Param("regionParent") String regionParent);
 
   @Query(value = "SELECT nx, ny FROM region WHERE region_parent = :regionParent AND region_child = :regionChild LIMIT 1", nativeQuery = true)
