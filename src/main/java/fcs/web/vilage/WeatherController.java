@@ -21,7 +21,7 @@ public class WeatherController {
 
   @GetMapping("/location/getWeatherInfo")
   @ResponseBody
-  public String getList(RegionDTO regionDTO) throws IOException {
+  public String[] getList(RegionDTO regionDTO) throws IOException {
     WeatherData weatherData = new WeatherData();
     List<Object[]> results = weatherService.getRegionNXNY(regionDTO.getRegionParent(), regionDTO.getRegionChild());
     int nx = 0;

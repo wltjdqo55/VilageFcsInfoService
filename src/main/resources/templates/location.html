@@ -10,20 +10,23 @@
 </head>
 <body>
 
-<div id="app" v-cloak>
-    <h2>날씨 정보</h2>
-    <label>
-        <select v-model="search.selectedParent" @change="getChildList()">
-            <option value="선택">선택</option>
-            <option v-for="(parent, index) in regionParent" :key="index" :value="parent">{{parent}}</option>
-        </select>
-        <select v-model="search.selectedChild" v-if="search.selectedParent!='선택'">
-            <option value="선택">선택</option>
-            <option v-for="(child, index) in regionChild" :key="index" :value="child">{{child}}</option>
-        </select>
-        <button type="button" @click="weatherAPISubmit()">확인</button>
-    </label>
-    <span v-html="weatherInfo"></span>
+<div id="app" v-cloak style="width:70%;margin:0 auto;">
+    <div class="container">
+        <h2>날씨 정보</h2>
+        <label>
+            <select v-model="search.selectedParent" @change="getChildList()" style="width:200px;height:50px">
+                <option value="선택">선택</option>
+                <option v-for="(parent, index) in regionParent" :key="index" :value="parent">{{parent}}</option>
+            </select>
+            <select v-model="search.selectedChild" :disabled="search.selectedParent=='선택'" style="width:200px;height:50px">
+                <option value="선택">선택</option>
+                <option v-for="(child, index) in regionChild" :key="index" :value="child">{{child}}</option>
+            </select>
+            <button type="button" @click="weatherAPISubmit()" style="width:100px;height:50px;">확인</button>
+        </label>
+    </div><br><br>
+    <div style="font-size: 1em; font-weight: bold;">{{ weatherTime }}</div><br>
+    <div style="font-size: 1em; font-weight: bold;">{{ weatherInfo }}</div>
 </div>
 <script src="/plugins/vueJs/vue.js"></script>
 <script type="text/javascript" src="/plugins/axios/axios.min.js"></script>
@@ -34,6 +37,7 @@
         x : "",
         y : "",
         weatherInfo : "",
+        weatherTime : "",
         search : {
             selectedParent : "선택",
             selectedChild : "선택"
@@ -88,7 +92,8 @@
             })
             .then(res => {
                 console.log(res.data);
-                vm.weatherInfo = res.data;
+                vm.weatherTime = res.data[0];
+                vm.weatherInfo = res.data[1];
             })
             .catch(error => {
                 console.error(error);
